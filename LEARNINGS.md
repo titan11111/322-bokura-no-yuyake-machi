@@ -1,5 +1,11 @@
 # 322-bokura-no-yuyake-machi LEARNINGS
 
+## 2026-10-17 iOS標準レイアウト（75/25）とダブルタップ防止
+
+- 操作盤が3D画面の上に重なるオーバーレイ式で、iOSハーネスのレイアウト検査（#game-shell/#game-stage/#screen-wrap/#control-deck）が丸ごとスキップされていた。上75%ゲーム・下25%操作盤の標準構成に組み替えた。
+- 初期化の `renderer.setSize(innerWidth,innerHeight)` が canvas に height:844px のインラインstyleを残し、75%の枠からはみ出して画面が縦に引き伸ばされた（＝急に拡大して見える）。setSize は第3引数 false にしてCSSに任せ、ResizeObserver で枠サイズに追従させる。
+- iOS Safari は user-scalable=no を無視するので、dblclick・300ms以内の連続touchend・gesturestart/change・2本指touchmove を preventDefault。STARTボタンも48px以上に。
+
 ## 2026-10-17 東の路地・アクション・2日目・動物
 
 - 東の住宅街は路地幅4mの中央に自転車・井戸・地蔵・洗濯物があり、すれ違えず見通しも悪かった。路地を5m（x42.5〜47.5）、商店街裏を4.5mに広げ、小物は東側の塀ぎわへ寄せた。
