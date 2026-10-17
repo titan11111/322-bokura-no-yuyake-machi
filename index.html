@@ -120,6 +120,40 @@ button,.overlay,#story,.card,#dlg{touch-action:manipulation}
 #roomTag{top:calc(105px + env(safe-area-inset-top,0px))}
 #toast{top:calc(135px + env(safe-area-inset-top,0px))}
 @media(max-height:560px){.dpad{transform:scale(.8)}.lab{display:none}.plate{display:none}}
+
+/* ---- action controller v2: fills the whole 25% deck, big cross + FC-style diagonal A/B, glide between buttons ---- */
+#control-deck{padding:4px max(6px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(6px,env(safe-area-inset-left,0px))}
+#pad{--s:clamp(48px,min(20vw,10.5dvh),88px);--d:clamp(112px,min(46vw,calc(25dvh - 18px)),214px);
+  width:min(680px,100%);height:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);align-items:center;gap:6px;padding:0;
+  background:none;border:0;box-shadow:none;border-radius:0}
+#pad::before{display:none}
+#lzone{height:100%;display:flex;align-items:center;justify-content:center;touch-action:none;position:relative}
+.dpad{width:min(var(--d),100%);height:auto;aspect-ratio:1;max-height:100%;transform:none!important;filter:drop-shadow(0 5px 0 rgba(0,0,0,.55))}
+.dpad i{background:linear-gradient(180deg,#3a2c24,#17110e);border:2px solid #0c0806}
+.dpad .u{left:33%;top:0;width:34%;height:37%;border-radius:9px 9px 0 0}
+.dpad .d{left:33%;bottom:0;width:34%;height:37%;border-radius:0 0 9px 9px}
+.dpad .l{top:33%;left:0;width:37%;height:34%;border-radius:9px 0 0 9px}
+.dpad .r{top:33%;right:0;width:37%;height:34%;border-radius:0 9px 9px 0}
+.dpad .c{left:33%;top:33%;width:34%;height:34%;border:0;background:#17110e}
+.dpad .u::after,.dpad .d::after,.dpad .l::after,.dpad .r::after{content:"";position:absolute;left:50%;top:50%;width:0;height:0;border:calc(var(--d)*.045) solid transparent;transform:translate(-50%,-50%)}
+.dpad .u::after{border-bottom-color:#8a7464;margin-top:calc(var(--d)*-.02)}.dpad .d::after{border-top-color:#8a7464;margin-top:calc(var(--d)*.02)}
+.dpad .l::after{border-right-color:#8a7464;margin-left:calc(var(--d)*-.02)}.dpad .r::after{border-left-color:#8a7464;margin-left:calc(var(--d)*.02)}
+.dpad i.on{background:linear-gradient(180deg,#7a5a44,#4a3426);transform:none}.dpad i.on::after{filter:brightness(2.2)}
+.mid{height:100%;justify-content:center}
+#btnStart{position:fixed;z-index:6;top:calc(100px + env(safe-area-inset-top,0px));right:calc(10px + env(safe-area-inset-right,0px));width:44px;height:44px;border-radius:50%;border:2px solid var(--ink);background:var(--paper);color:var(--ink);font:900 14px var(--body);letter-spacing:-1px;box-shadow:0 2px 5px #0003;padding:0}
+#btnStart.on{transform:translateY(2px)}
+#rzone{position:relative;height:100%;width:100%;display:block;touch-action:none;gap:0}
+.rb{position:absolute;width:var(--s);height:var(--s);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1;
+  border:3px solid #0c0806;box-shadow:0 5px 0 #0c0806,inset 0 2px 0 rgba(255,255,255,.25)}
+.rb b{font:700 calc(var(--s)*.36) var(--disp)}.rb small{font:700 calc(var(--s)*.13) var(--body);letter-spacing:0;opacity:.92;white-space:nowrap}
+#btnA{right:2%;top:calc(50% - var(--s)*1.0)}
+#btnB{right:calc(2% + var(--s)*1.12);top:min(calc(100% - var(--s) - 6px),calc(50% - var(--s)*.02))}
+#btnC{width:calc(var(--s)*.8);height:calc(var(--s)*.8);right:calc(2% + var(--s)*1.22);top:max(2px,calc(50% - var(--s)*1.02))}
+#btnC b{font-size:calc(var(--s)*.3)}#btnC small{font-size:calc(var(--s)*.11)}
+.rb.bb{background:radial-gradient(circle at 38% 32%,#f0c050,#d89a1c 55%,#8a5a10);color:#2a1a08}
+.rb.on,.rb.hold{transform:translateY(4px);box-shadow:0 1px 0 #0c0806,inset 0 2px 6px rgba(0,0,0,.35);filter:brightness(1.18)}
+
+@media (orientation:landscape) and (max-height:560px){#pad{--s:clamp(40px,10dvh,72px);--d:calc(25dvh - 16px);width:min(560px,100%)}.rb small{display:none}#btnC{right:calc(2% + var(--s)*2.24);top:calc(50% - var(--s)*.4)}#btnB{top:calc(50% - var(--s)*.5)}#btnA{top:calc(50% - var(--s)*.5)}}
 </style>
 
 <div id="game-shell"><div id="game-stage"><div id="screen-wrap"><canvas id="c" tabindex="0" aria-label="昭和の町の3Dビュー"></canvas></div></div>
@@ -137,17 +171,23 @@ button,.overlay,#story,.card,#dlg{touch-action:manipulation}
   <div id="prompt" class="card" hidden></div>
   <div id="toast" class="card" hidden></div>
   <div id="roomTag" class="card" hidden></div>
+  <button id="btnStart" type="button" aria-label="ポーズ（START）"><span>II</span></button>
   <div id="alertTag" class="card" hidden></div>
 </div>
 <div id="found" class="card" hidden><div class="k">おたから発見</div><div class="n" id="foundName"></div><div class="d" id="foundDesc"></div></div>
 <div id="dlg" class="card" hidden tabindex="0"><div id="dlgName"></div><div id="dlgText"></div><div id="dlgNext">▼</div></div>
 <div id="control-deck"><div id="pad" class="off">
-  <div class="dpad" id="dpad" aria-label="十字キー"><i class="u"></i><i class="d"></i><i class="l"></i><i class="r"></i><i class="c"></i></div>
-  <div class="mid"><div class="plate"></div><div class="ss"><div><button class="pill" id="btnStart" type="button" aria-label="スタート"></button><span class="lab">START</span></div></div><div class="plate"></div></div>
+  <div id="lzone" aria-label="十字キー（左側のどこを触っても操作できる）"><div class="dpad" id="dpad"><i class="u"></i><i class="d"></i><i class="l"></i><i class="r"></i><i class="c"></i></div></div>
+  <div id="rzone" class="ab">
+    <button class="rb cb" id="btnC" type="button" aria-label="Cボタン しゃがむ（長押しでほふく）"><b>C</b><small>しゃがむ</small></button>
+    <button class="rb bb" id="btnB" type="button" aria-label="Bボタン ダッシュ"><b>B</b><small>ダッシュ</small></button>
+    <button class="rb" id="btnA" type="button" aria-label="Aボタン しらべる"><b>A</b><small>しらべる</small></button>
+  </div>
+</div></div><div class="plate"></div></div>
   <div class="ab"><div><span class="btn-wrap"><button class="rb cb" id="btnC" type="button" aria-label="Cボタン しゃがむ（長押しでほふく）">C</button></span><span class="lab">しゃがむ</span></div><div><span class="btn-wrap"><button class="rb" id="btnB" type="button" aria-label="Bボタン ダッシュ">B</button></span><span class="lab">ダッシュ</span></div><div><span class="btn-wrap"><button class="rb" id="btnA" type="button" aria-label="Aボタン しらべる">A</button></span><span class="lab">しらべる</span></div></div>
 </div>
 </div></div>
-<div id="pauseCard" class="card" hidden>ポーズ中<small>START でつづきから</small></div>
+<div id="pauseCard" class="card" hidden>ポーズ中<small>右上の II（PCはEsc）でつづきから</small></div>
 
 <div id="title" class="overlay">
   <div class="era">昭和四十三年 ・ 十月の放課後</div>
@@ -2066,16 +2106,22 @@ addEventListener('keyup',e=>{keys[e.code]=false;if(CCODES.includes(e.code))cUp()
 canvas.addEventListener('pointerdown',e=>{if(state!=='play')return;if(look.id!==null)return;look.id=e.pointerId;look.lx=e.clientX;look.ly=e.clientY;canvas.setPointerCapture(e.pointerId);});
 canvas.addEventListener('pointermove',e=>{if(e.pointerId!==look.id)return;const dx=e.clientX-look.lx,dy=e.clientY-look.ly;look.lx=e.clientX;look.ly=e.clientY;const k=isTouch?.0065:.0045;cam.yaw-=dx*k;if(!isTouch)cam.pitch=clamp(cam.pitch+dy*k,.32,1.42);});
 const endLook=e=>{if(e.pointerId===look.id)look.id=null;};canvas.addEventListener('pointerup',endLook);canvas.addEventListener('pointercancel',endLook);
-const dpadEl=$('dpad');
-function setDpad(e){const r=dpadEl.getBoundingClientRect();const dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);if(Math.hypot(dx,dy)<9){pad.x=pad.y=0;return;}const a=Math.round(Math.atan2(dy,dx)/(Math.PI/4))*Math.PI/4;pad.x=Math.round(Math.cos(a));pad.y=Math.round(Math.sin(a));}
-dpadEl.addEventListener('pointerdown',e=>{e.preventDefault();pad.dId=e.pointerId;dpadEl.setPointerCapture(e.pointerId);setDpad(e);});
-dpadEl.addEventListener('pointermove',e=>{if(e.pointerId===pad.dId)setDpad(e);});
-const endD=e=>{if(e.pointerId!==pad.dId)return;pad.dId=null;pad.x=pad.y=0;};dpadEl.addEventListener('pointerup',endD);dpadEl.addEventListener('pointercancel',endD);
-const bEl=$('btnB');
-bEl.addEventListener('pointerdown',e=>{e.preventDefault();pad.b=true;bEl.classList.add('on');bEl.setPointerCapture(e.pointerId);});
-const endB=()=>{pad.b=false;if(!BCODES.some(c=>keys[c]))bEl.classList.remove('on');};bEl.addEventListener('pointerup',endB);bEl.addEventListener('pointercancel',endB);
-$('btnA').addEventListener('pointerdown',e=>{e.preventDefault();pressA();});
-{const cEl=$('btnC');cEl.addEventListener('pointerdown',e=>{e.preventDefault();cEl.setPointerCapture(e.pointerId);cDown();});const up=()=>cUp();cEl.addEventListener('pointerup',up);cEl.addEventListener('pointercancel',up);}
+const dpadEl=$('dpad'),lzone=$('lzone');
+function setDpad(e){const r=dpadEl.getBoundingClientRect();const dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);if(Math.hypot(dx,dy)<r.width*.1){pad.x=pad.y=0;return;}const a=Math.round(Math.atan2(dy,dx)/(Math.PI/4))*Math.PI/4;pad.x=Math.round(Math.cos(a));pad.y=Math.round(Math.sin(a));}
+lzone.addEventListener('pointerdown',e=>{e.preventDefault();if(pad.dId!==null)return;pad.dId=e.pointerId;try{lzone.setPointerCapture(e.pointerId);}catch(_){}setDpad(e);buzz(5);});
+lzone.addEventListener('pointermove',e=>{if(e.pointerId===pad.dId)setDpad(e);});
+const endD=e=>{if(e.pointerId!==pad.dId)return;pad.dId=null;pad.x=pad.y=0;};lzone.addEventListener('pointerup',endD);lzone.addEventListener('pointercancel',endD);
+function buzz(ms){if(navigator.vibrate)try{navigator.vibrate(ms);}catch(e){}}
+// Right thumb: each finger maps to the nearest button within reach, so rolling from B onto A (or A+B with one thumb on the seam) works.
+const rzone=$('rzone'),RB={a:$('btnA'),b:$('btnB'),c:$('btnC')},rPtr=new Map();
+function hitRB(x,y){let best=null,bd=1e9;for(const k in RB){const r=RB[k].getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,d=Math.hypot(x-cx,y-cy);if(d<r.width*.82&&d<bd){bd=d;best=k;}}return best;}
+function rbCount(k){let n=0;for(const v of rPtr.values())if(v===k)n++;return n;}
+function rbDown(k){RB[k].classList.add('hold');buzz(8);if(k==='a')pressA();else if(k==='b')pad.b=true;else cDown();}
+function rbUp(k){RB[k].classList.remove('hold');if(k==='b')pad.b=false;else if(k==='c')cUp();}
+function setRB(id,k){const prev=rPtr.get(id);if(prev===k)return;rPtr.set(id,k);if(prev&&!rbCount(prev))rbUp(prev);if(k&&rbCount(k)===1)rbDown(k);}
+rzone.addEventListener('pointerdown',e=>{e.preventDefault();try{rzone.setPointerCapture(e.pointerId);}catch(_){}rPtr.set(e.pointerId,null);setRB(e.pointerId,hitRB(e.clientX,e.clientY));});
+rzone.addEventListener('pointermove',e=>{if(rPtr.has(e.pointerId))setRB(e.pointerId,hitRB(e.clientX,e.clientY));});
+const endR=e=>{if(!rPtr.has(e.pointerId))return;setRB(e.pointerId,null);rPtr.delete(e.pointerId);};rzone.addEventListener('pointerup',endR);rzone.addEventListener('pointercancel',endR);
 $('btnStart').addEventListener('pointerdown',e=>{e.preventDefault();pressStart();});
 $('pad').addEventListener('contextmenu',e=>e.preventDefault());
 const armEls={u:dpadEl.querySelector('.u'),d:dpadEl.querySelector('.d'),l:dpadEl.querySelector('.l'),r:dpadEl.querySelector('.r')};let armKey='';
